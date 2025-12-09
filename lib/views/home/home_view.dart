@@ -6,6 +6,7 @@ import '../../widgets/habit_card.dart';
 import '../../widgets/stats_card.dart';
 import '../auth/login_view.dart';
 import '../statistics_view.dart';
+import '../templates_view.dart';
 import '../../models/habit_category.dart';
 
 class HomeView extends StatefulWidget {
@@ -60,6 +61,19 @@ class _HomeViewState extends State<HomeView>
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         actions: [
+          // Templates button
+          IconButton(
+            icon: const Icon(Icons.grid_view),
+            tooltip: 'Browse Templates',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const TemplatesView(),
+                ),
+              );
+            },
+          ),
           // Statistics button
           IconButton(
             icon: const Icon(Icons.bar_chart),
@@ -132,13 +146,37 @@ class _HomeViewState extends State<HomeView>
                     'No habits yet',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       color: Colors.grey[600],
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Tap the + button to create your first habit',
                     style: TextStyle(color: Colors.grey[500]),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const TemplatesView(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.grid_view),
+                    label: const Text('Browse Templates'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).primaryColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                   ),
                   if (!authVm.isLoggedIn) ...[
                     const SizedBox(height: 24),
