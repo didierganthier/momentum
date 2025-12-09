@@ -16,15 +16,19 @@ class _TemplatesViewState extends State<TemplatesView> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         elevation: 0,
         title: const Text(
           'Habit Templates',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: isDark 
+            ? Theme.of(context).appBarTheme.backgroundColor
+            : Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
       ),
       body: ListView(
@@ -48,7 +52,7 @@ class _TemplatesViewState extends State<TemplatesView> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -132,7 +136,7 @@ class _TemplatesViewState extends State<TemplatesView> {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.grey[100],
+                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(

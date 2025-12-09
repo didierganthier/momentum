@@ -6,10 +6,12 @@ import 'package:timezone/data/latest.dart' as tz;
 
 import 'viewmodels/auth_viewmodel.dart';
 import 'viewmodels/habit_viewmodel.dart';
+import 'viewmodels/theme_viewmodel.dart';
 import 'views/auth/register_view.dart';
 import 'views/home/home_view.dart';
 import 'views/splash_screen.dart';
 import 'services/notification_service.dart';
+import 'config/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -98,6 +100,7 @@ class _HabitAppInitializerState extends State<HabitAppInitializer> {
 
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => ThemeViewModel()),
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
         ChangeNotifierProxyProvider<AuthViewModel, HabitViewModel>(
           create: (_) => HabitViewModel(),
@@ -117,39 +120,22 @@ class HabitApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Momentum',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF6366F1), // Indigo
-          brightness: Brightness.light,
-        ),
-        textTheme: GoogleFonts.interTextTheme(),
-        cardTheme: CardThemeData(
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+    return Consumer<ThemeViewModel>(
+      builder: (context, themeViewModel, child) {
+        return MaterialApp(
+          title: 'Momentum',
+          debugShowCheckedModeBanner: false,
+          themeMode: themeViewModel.themeMode,
+          theme: AppTheme.lightTheme.copyWith(
+            textTheme: GoogleFonts.interTextTheme(),
           ),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            elevation: 2,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+          darkTheme: AppTheme.darkTheme.copyWith(
+            textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
           ),
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          filled: true,
-        ),
-        appBarTheme: const AppBarTheme(centerTitle: false, elevation: 0),
-      ),
-      routes: {'/register': (context) => const RegisterView()},
-      home: const HomeView(),
+          routes: {'/register': (context) => const RegisterView()},
+          home: const HomeView(),
+        );
+      },
     );
   }
 }
