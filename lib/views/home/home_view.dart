@@ -5,6 +5,7 @@ import '../../viewmodels/auth_viewmodel.dart';
 import '../../widgets/habit_card.dart';
 import '../../widgets/stats_card.dart';
 import '../auth/login_view.dart';
+import '../statistics_view.dart';
 import '../../models/habit_category.dart';
 
 class HomeView extends StatefulWidget {
@@ -59,6 +60,19 @@ class _HomeViewState extends State<HomeView>
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         actions: [
+          // Statistics button
+          IconButton(
+            icon: const Icon(Icons.bar_chart),
+            tooltip: 'Statistics',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const StatisticsView(),
+                ),
+              );
+            },
+          ),
           // Show different icons based on login status
           if (!authVm.isLoggedIn)
             IconButton(
@@ -224,10 +238,27 @@ class _HomeViewState extends State<HomeView>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Statistics',
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.bold),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Statistics',
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            TextButton.icon(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const StatisticsView(),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.arrow_forward, size: 18),
+                              label: const Text('View All'),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 12),
                         Row(
