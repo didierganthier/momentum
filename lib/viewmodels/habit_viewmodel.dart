@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/habit.dart';
 import '../models/habit_category.dart';
+import '../models/habit_completion.dart';
 import '../services/habit_service.dart';
 import '../services/local_storage_service.dart';
 import '../services/notification_service.dart';
@@ -129,6 +130,7 @@ class HabitViewModel extends ChangeNotifier {
 
   Future<void> completeHabit(Habit habit) async {
     if (_isLoggedIn) {
+      // Firebase service handles both habit update and completion tracking
       await _firebaseService.completeHabit(habit);
     } else {
       final now = DateTime.now();
@@ -156,6 +158,15 @@ class HabitViewModel extends ChangeNotifier {
       );
 
       await _localStorage.updateHabit(updatedHabit);
+
+      // Track completion in local storage
+      final completion = HabitCompletion(
+        id: '${habit.id}_${now.millisecondsSinceEpoch}',
+        habitId: habit.id,
+        completedAt: now,
+      );
+      await _localStorage.addCompletion(completion);
+
       await _loadLocalHabits();
     }
   }

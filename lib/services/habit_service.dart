@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../models/habit.dart';
 import '../models/habit_category.dart';
+import '../models/habit_completion.dart';
 
 class HabitService {
   String get userId => FirebaseAuth.instance.currentUser!.uid;
@@ -11,6 +12,11 @@ class HabitService {
       .collection('users')
       .doc(userId)
       .collection('habits');
+
+  CollectionReference get _completionsRef => FirebaseFirestore.instance
+      .collection('users')
+      .doc(userId)
+      .collection('completions');
 
   Stream<List<Habit>> getHabits() {
     return _habitRef.snapshots().map((snapshot) {
@@ -78,9 +84,49 @@ class HabitService {
       'streak': newStreak,
       'lastCompleted': now.toIso8601String(),
     });
+
+    // Add completion record
+    await _completionsRef.add({
+      'habitId': habit.id,
+      'completedAt': Timestamp.fromDate(now),
+      'note': null,
+    });
   }
 
   Future<void> deleteHabit(String id) async {
     await _habitRef.doc(id).delete();
+    // Also delete all completions for this habit
+    final completions = await _completionsRef
+        .where('habitId', isEqualTo: id)
+        .get();
+    for (var doc in completions.docs) {
+      await doc.reference.delete();
+    }
+  }
+
+  // Completion tracking methods
+  Stream<List<HabitCompletion>> getCompletions(String habitId) {
+    return _completionsRef
+        .where('habitId', isEqualTo: habitId)
+        .orderBy('completedAt', descending: true)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((doc) =>
+              HabitCompletion.fromMap(doc.id, doc.data() as Map<String, dynamic>))
+          .toList();
+    });
+  }
+
+  Future<List<HabitCompletion>> getCompletionsList(String habitId) async {
+    final snapshot = await _completionsRef
+        .where('habitId', isEqualTo: habitId)
+        .orderBy('completedAt', descending: true)
+        .get();
+
+    return snapshot.docs
+        .map((doc) =>
+            HabitCompletion.fromMap(doc.id, doc.data() as Map<String, dynamic>))
+        .toList();
   }
 }

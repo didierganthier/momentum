@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/habit.dart';
 import '../viewmodels/habit_viewmodel.dart';
+import '../views/habit/habit_history_view.dart';
 
 class HabitCard extends StatefulWidget {
   final Habit habit;
@@ -166,6 +167,35 @@ class _HabitCardState extends State<HabitCard>
                     ],
                   ),
                 ),
+                // History button
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(30),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              HabitHistoryView(habit: widget.habit),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Icon(
+                        Icons.calendar_month,
+                        color: Colors.grey[700],
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
                 // Complete button
                 Material(
                   color: Colors.transparent,
