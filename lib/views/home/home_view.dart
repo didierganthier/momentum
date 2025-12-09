@@ -55,7 +55,7 @@ class _HomeViewState extends State<HomeView>
     final habits = habitsVm.habits;
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         elevation: 0,
         title: const Text(
