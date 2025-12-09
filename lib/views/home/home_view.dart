@@ -4,6 +4,7 @@ import '../../viewmodels/habit_viewmodel.dart';
 import '../../viewmodels/auth_viewmodel.dart';
 import '../../widgets/habit_card.dart';
 import '../../widgets/stats_card.dart';
+import '../auth/login_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -57,39 +58,47 @@ class _HomeViewState extends State<HomeView>
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout_rounded),
-            tooltip: 'Logout',
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Logout'),
-                  content: const Text('Are you sure you want to logout?'),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancel'),
+          // Show different icons based on login status
+          if (!authVm.isLoggedIn)
+            IconButton(
+              icon: const Icon(Icons.login_rounded),
+              tooltip: 'Login to sync',
+              onPressed: () => _showLoginPrompt(context),
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.logout_rounded),
+              tooltip: 'Logout',
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Logout'),
+                    content: const Text('Are you sure you want to logout?'),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        authVm.logout();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Cancel'),
                       ),
-                      child: const Text('Logout'),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          authVm.logout();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Text('Logout'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           const SizedBox(width: 8),
         ],
       ),
@@ -116,11 +125,97 @@ class _HomeViewState extends State<HomeView>
                     'Tap the + button to create your first habit',
                     style: TextStyle(color: Colors.grey[500]),
                   ),
+                  if (!authVm.isLoggedIn) ...[
+                    const SizedBox(height: 24),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      margin: const EdgeInsets.symmetric(horizontal: 32),
+                      decoration: BoxDecoration(
+                        color: Colors.blue[50],
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.blue[200]!),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(Icons.cloud_sync, color: Colors.blue[700]),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Sign in to sync across devices',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.blue[900],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextButton(
+                            onPressed: () => _showLoginPrompt(context),
+                            child: const Text('Sign In'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
               ),
             )
           : CustomScrollView(
               slivers: [
+                // Sync banner for non-logged users
+                if (!authVm.isLoggedIn)
+                  SliverToBoxAdapter(
+                    child: Container(
+                      margin: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.blue[600]!, Colors.blue[400]!],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.cloud_off_outlined,
+                            color: Colors.white,
+                            size: 32,
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Local Mode',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Sign in to sync your habits across devices',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.9),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => _showLoginPrompt(context),
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.blue[700],
+                            ),
+                            child: const Text('Sign In'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 // Stats section
                 SliverToBoxAdapter(
                   child: Container(
@@ -280,6 +375,13 @@ class _HomeViewState extends State<HomeView>
           ),
         ],
       ),
+    );
+  }
+
+  void _showLoginPrompt(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginView()),
     );
   }
 }

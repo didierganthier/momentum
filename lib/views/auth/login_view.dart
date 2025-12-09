@@ -50,8 +50,20 @@ class _LoginViewState extends State<LoginView>
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthViewModel>(context);
+    final canPop = Navigator.of(context).canPop();
 
     return Scaffold(
+      appBar: canPop
+          ? AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              leading: IconButton(
+                icon: const Icon(Icons.close, color: Colors.white),
+                onPressed: () => Navigator.pop(context),
+              ),
+            )
+          : null,
+      extendBodyBehindAppBar: true,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(

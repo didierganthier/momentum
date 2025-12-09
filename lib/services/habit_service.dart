@@ -24,6 +24,18 @@ class HabitService {
     await _habitRef.add({'name': name, 'streak': 0, 'lastCompleted': null});
   }
 
+  Future<void> createHabitWithData(
+    String name,
+    int streak,
+    DateTime? lastCompleted,
+  ) async {
+    await _habitRef.add({
+      'name': name,
+      'streak': streak,
+      'lastCompleted': lastCompleted?.toIso8601String(),
+    });
+  }
+
   Future<void> completeHabit(Habit habit) async {
     final now = DateTime.now();
     final last = habit.lastCompleted;

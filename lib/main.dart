@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'viewmodels/auth_viewmodel.dart';
 import 'viewmodels/habit_viewmodel.dart';
-import 'views/auth/login_view.dart';
 import 'views/auth/register_view.dart';
 import 'views/home/home_view.dart';
 import 'views/splash_screen.dart';
@@ -88,7 +87,13 @@ class _HabitAppInitializerState extends State<HabitAppInitializer> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
-        ChangeNotifierProvider(create: (_) => HabitViewModel()),
+        ChangeNotifierProxyProvider<AuthViewModel, HabitViewModel>(
+          create: (_) => HabitViewModel(),
+          update: (_, auth, habitVm) {
+            habitVm?.setLoggedIn(auth.isLoggedIn);
+            return habitVm!;
+          },
+        ),
       ],
       child: const HabitApp(),
     );
@@ -132,14 +137,7 @@ class HabitApp extends StatelessWidget {
         appBarTheme: const AppBarTheme(centerTitle: false, elevation: 0),
       ),
       routes: {'/register': (context) => const RegisterView()},
-      home: Consumer<AuthViewModel>(
-        builder: (context, auth, _) {
-          if (auth.isLoggedIn) {
-            return const HomeView();
-          }
-          return const LoginView();
-        },
-      ),
+      home: const HomeView(),
     );
   }
 }
