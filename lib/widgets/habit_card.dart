@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/habit.dart';
 import '../viewmodels/habit_viewmodel.dart';
 import '../views/habit/habit_history_view.dart';
+import 'habit_completion_dialog.dart';
 
 class HabitCard extends StatefulWidget {
   final Habit habit;
@@ -201,9 +202,25 @@ class _HabitCardState extends State<HabitCard>
                   color: Colors.transparent,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(30),
-                    onTap: () {
-                      vm.completeHabit(widget.habit);
-                      _showCompletionAnimation(context);
+                    onTap: () async {
+                      // Show dialog to optionally add a note
+                      final note = await showDialog<String>(
+                        context: context,
+                        builder: (context) => HabitCompletionDialog(habit: widget.habit),
+                      );
+                      
+                      // If null, user cancelled
+                      if (note == null) return;
+                      
+                      // Complete the habit with the note (empty string if skipped)
+                      await vm.completeHabit(
+                        widget.habit,
+                        note: note.isEmpty ? null : note,
+                      );
+                      
+                      if (context.mounted) {
+                        _showCompletionAnimation(context);
+                      }
                     },
                     child: Container(
                       padding: const EdgeInsets.all(12),

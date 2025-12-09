@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../models/habit.dart';
+import '../../models/habit_completion.dart';
 import '../../services/habit_history_service.dart';
 
 class HabitHistoryView extends StatefulWidget {
@@ -16,6 +17,7 @@ class _HabitHistoryViewState extends State<HabitHistoryView> {
   DateTime _selectedMonth = DateTime.now();
   final HabitHistoryService _historyService = HabitHistoryService();
   Set<String> _completedDates = {}; // Cache completed dates as "yyyy-MM-dd"
+  Map<String, HabitCompletion> _completions = {}; // Cache completions with notes
   bool _isLoading = true;
 
   @override
@@ -34,10 +36,14 @@ class _HabitHistoryViewState extends State<HabitHistoryView> {
     );
     
     setState(() {
-      _completedDates = completions.map((c) {
-        final date = c.completedAt;
-        return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-      }).toSet();
+      _completedDates = {};
+      _completions = {};
+      for (var completion in completions) {
+        final date = completion.completedAt;
+        final dateKey = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+        _completedDates.add(dateKey);
+        _completions[dateKey] = completion;
+      }
       _isLoading = false;
     });
   }
@@ -314,11 +320,11 @@ class _HabitHistoryViewState extends State<HabitHistoryView> {
     final isCompleted = _isDateCompleted(date);
     final isToday = _isToday(date);
     final isFuture = date.isAfter(DateTime.now());
+    final dateKey = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    final hasNote = _completions[dateKey]?.note != null && _completions[dateKey]!.note!.isNotEmpty;
 
     return GestureDetector(
-      onTap: () {
-        // Could show details for this date
-      },
+      onTap: isCompleted ? () => _showNoteDialog(date) : null,
       child: Container(
         width: 40,
         height: 40,
@@ -333,27 +339,138 @@ class _HabitHistoryViewState extends State<HabitHistoryView> {
               ? Border.all(color: Theme.of(context).primaryColor, width: 2)
               : null,
         ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                '${date.day}',
-                style: TextStyle(
-                  color: isCompleted
-                      ? Colors.white
-                      : isFuture
-                      ? Colors.grey[400]
-                      : Colors.black87,
-                  fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
-                  fontSize: 14,
+        child: Stack(
+          children: [
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '${date.day}',
+                    style: TextStyle(
+                      color: isCompleted
+                          ? Colors.white
+                          : isFuture
+                          ? Colors.grey[400]
+                          : Colors.black87,
+                      fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+                      fontSize: 14,
+                    ),
+                  ),
+                  if (isCompleted)
+                    const Icon(Icons.check, color: Colors.white, size: 12),
+                ],
+              ),
+            ),
+            if (hasNote)
+              Positioned(
+                top: 2,
+                right: 2,
+                child: Container(
+                  width: 6,
+                  height: 6,
+                  decoration: const BoxDecoration(
+                    color: Colors.amber,
+                    shape: BoxShape.circle,
+                  ),
                 ),
               ),
-              if (isCompleted)
-                const Icon(Icons.check, color: Colors.white, size: 12),
-            ],
-          ),
+          ],
         ),
+      ),
+    );
+  }
+
+  void _showNoteDialog(DateTime date) {
+    final dateKey = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    final completion = _completions[dateKey];
+    
+    if (completion == null) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Row(
+          children: [
+            Icon(
+              Icons.calendar_today,
+              color: Theme.of(context).primaryColor,
+              size: 24,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              DateFormat('MMMM d, yyyy').format(date),
+              style: const TextStyle(fontSize: 18),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (completion.note != null && completion.note!.isNotEmpty) ...[
+              Row(
+                children: [
+                  Icon(
+                    Icons.note,
+                    size: 20,
+                    color: Colors.grey[600],
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Note',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  completion.note!,
+                  style: const TextStyle(fontSize: 14, height: 1.5),
+                ),
+              ),
+            ] else ...[
+              Row(
+                children: [
+                  Icon(
+                    Icons.check_circle,
+                    color: Theme.of(context).primaryColor,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  const Text('Completed'),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'No notes for this day',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
       ),
     );
   }

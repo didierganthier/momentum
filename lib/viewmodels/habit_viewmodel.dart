@@ -128,10 +128,10 @@ class HabitViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> completeHabit(Habit habit) async {
+  Future<void> completeHabit(Habit habit, {String? note}) async {
     if (_isLoggedIn) {
       // Firebase service handles both habit update and completion tracking
-      await _firebaseService.completeHabit(habit);
+      await _firebaseService.completeHabit(habit, note: note);
     } else {
       final now = DateTime.now();
       final lastCompleted = habit.lastCompleted;
@@ -164,6 +164,7 @@ class HabitViewModel extends ChangeNotifier {
         id: '${habit.id}_${now.millisecondsSinceEpoch}',
         habitId: habit.id,
         completedAt: now,
+        note: note,
       );
       await _localStorage.addCompletion(completion);
 

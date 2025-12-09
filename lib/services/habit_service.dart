@@ -62,7 +62,7 @@ class HabitService {
     });
   }
 
-  Future<void> completeHabit(Habit habit) async {
+  Future<void> completeHabit(Habit habit, {String? note}) async {
     final now = DateTime.now();
     final last = habit.lastCompleted;
 
@@ -89,7 +89,7 @@ class HabitService {
     await _completionsRef.add({
       'habitId': habit.id,
       'completedAt': Timestamp.fromDate(now),
-      'note': null,
+      'note': note,
     });
   }
 
