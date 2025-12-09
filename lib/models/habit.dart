@@ -1,4 +1,5 @@
 import 'habit_category.dart';
+import 'package:flutter/material.dart';
 
 class Habit {
   final String id;
@@ -6,6 +7,7 @@ class Habit {
   final int streak;
   final DateTime? lastCompleted;
   final HabitCategory category;
+  final TimeOfDay? reminderTime;
 
   Habit({
     required this.id,
@@ -13,6 +15,7 @@ class Habit {
     required this.streak,
     required this.lastCompleted,
     this.category = HabitCategory.other,
+    this.reminderTime,
   });
 
   Map<String, dynamic> toMap() {
@@ -21,11 +24,23 @@ class Habit {
       'streak': streak,
       'lastCompleted': lastCompleted?.toIso8601String(),
       'category': category.name,
+      'reminderTime': reminderTime != null
+          ? '${reminderTime!.hour}:${reminderTime!.minute}'
+          : null,
     };
   }
 
   // For Firestore
   factory Habit.fromMap(String id, Map<String, dynamic> map) {
+    TimeOfDay? reminderTime;
+    if (map['reminderTime'] != null) {
+      final parts = (map['reminderTime'] as String).split(':');
+      reminderTime = TimeOfDay(
+        hour: int.parse(parts[0]),
+        minute: int.parse(parts[1]),
+      );
+    }
+
     return Habit(
       id: id,
       name: map['name'],
@@ -37,6 +52,7 @@ class Habit {
         (c) => c.name == map['category'],
         orElse: () => HabitCategory.other,
       ),
+      reminderTime: reminderTime,
     );
   }
 
@@ -48,10 +64,22 @@ class Habit {
       'streak': streak,
       'lastCompleted': lastCompleted?.toIso8601String(),
       'category': category.name,
+      'reminderTime': reminderTime != null
+          ? '${reminderTime!.hour}:${reminderTime!.minute}'
+          : null,
     };
   }
 
   factory Habit.fromJson(Map<String, dynamic> json) {
+    TimeOfDay? reminderTime;
+    if (json['reminderTime'] != null) {
+      final parts = (json['reminderTime'] as String).split(':');
+      reminderTime = TimeOfDay(
+        hour: int.parse(parts[0]),
+        minute: int.parse(parts[1]),
+      );
+    }
+
     return Habit(
       id: json['id'],
       name: json['name'],
@@ -63,6 +91,7 @@ class Habit {
         (c) => c.name == (json['category'] ?? 'other'),
         orElse: () => HabitCategory.other,
       ),
+      reminderTime: reminderTime,
     );
   }
 }

@@ -2,15 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 import 'viewmodels/auth_viewmodel.dart';
 import 'viewmodels/habit_viewmodel.dart';
 import 'views/auth/register_view.dart';
 import 'views/home/home_view.dart';
 import 'views/splash_screen.dart';
+import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize timezone database
+  tz.initializeTimeZones();
+
+  // Initialize notification service
+  await NotificationService().initialize();
 
   runApp(const HabitAppInitializer());
 }
@@ -35,6 +43,10 @@ class _HabitAppInitializerState extends State<HabitAppInitializer> {
   Future<void> _initializeFirebase() async {
     try {
       await Firebase.initializeApp();
+
+      // Request notification permissions
+      await NotificationService().requestPermissions();
+
       // Add a small delay to show the splash screen
       await Future.delayed(const Duration(seconds: 2));
       setState(() {

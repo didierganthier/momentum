@@ -339,6 +339,7 @@ class _HomeViewState extends State<HomeView>
     final controller = TextEditingController();
     final formKey = GlobalKey<FormState>();
     HabitCategory selectedCategory = HabitCategory.other;
+    TimeOfDay? selectedReminderTime;
 
     await showDialog(
       context: context,
@@ -359,54 +360,119 @@ class _HomeViewState extends State<HomeView>
           ),
           content: Form(
             key: formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextFormField(
-                  controller: controller,
-                  autofocus: true,
-                  decoration: InputDecoration(
-                    hintText: "e.g., Read for 30 minutes",
-                    prefixIcon: const Icon(Icons.edit_outlined),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextFormField(
+                    controller: controller,
+                    autofocus: true,
+                    decoration: InputDecoration(
+                      hintText: "e.g., Read for 30 minutes",
+                      prefixIcon: const Icon(Icons.edit_outlined),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[50],
                     ),
-                    filled: true,
-                    fillColor: Colors.grey[50],
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Please enter a habit name';
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please enter a habit name';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Category',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: HabitCategory.values.map((category) {
-                    final isSelected = selectedCategory == category;
-                    return ChoiceChip(
-                      label: Text(category.displayName),
-                      selected: isSelected,
-                      onSelected: (selected) {
+                  const SizedBox(height: 16),
+                  Text(
+                    'Category',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: HabitCategory.values.map((category) {
+                      final isSelected = selectedCategory == category;
+                      return ChoiceChip(
+                        label: Text(category.displayName),
+                        selected: isSelected,
+                        onSelected: (selected) {
+                          setState(() {
+                            selectedCategory = category;
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Daily Reminder (Optional)',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  InkWell(
+                    onTap: () async {
+                      final TimeOfDay? picked = await showTimePicker(
+                        context: context,
+                        initialTime: selectedReminderTime ?? TimeOfDay.now(),
+                      );
+                      if (picked != null) {
                         setState(() {
-                          selectedCategory = category;
+                          selectedReminderTime = picked;
                         });
-                      },
-                    );
-                  }).toList(),
-                ),
-              ],
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey[300]!),
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.grey[50],
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.notifications_outlined,
+                            color: selectedReminderTime != null
+                                ? Theme.of(context).primaryColor
+                                : Colors.grey[600],
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              selectedReminderTime != null
+                                  ? 'Remind me at ${selectedReminderTime!.format(context)}'
+                                  : 'Set a reminder time',
+                              style: TextStyle(
+                                color: selectedReminderTime != null
+                                    ? Colors.black87
+                                    : Colors.grey[600],
+                              ),
+                            ),
+                          ),
+                          if (selectedReminderTime != null)
+                            IconButton(
+                              icon: const Icon(Icons.clear, size: 20),
+                              onPressed: () {
+                                setState(() {
+                                  selectedReminderTime = null;
+                                });
+                              },
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           actions: [
@@ -417,15 +483,25 @@ class _HomeViewState extends State<HomeView>
             ElevatedButton.icon(
               onPressed: () {
                 if (formKey.currentState!.validate()) {
-                  habitsVm.addHabit(controller.text.trim(), selectedCategory);
+                  habitsVm.addHabit(
+                    controller.text.trim(),
+                    selectedCategory,
+                    reminderTime: selectedReminderTime,
+                  );
                   Navigator.pop(dialogContext);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: const Row(
+                      content: Row(
                         children: [
-                          Icon(Icons.check_circle, color: Colors.white),
-                          SizedBox(width: 12),
-                          Text('Habit added successfully!'),
+                          const Icon(Icons.check_circle, color: Colors.white),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              selectedReminderTime != null
+                                  ? 'Habit added with daily reminder at ${selectedReminderTime!.format(context)}!'
+                                  : 'Habit added successfully!',
+                            ),
+                          ),
                         ],
                       ),
                       backgroundColor: Colors.green,

@@ -1,12 +1,14 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import '../models/habit.dart';
 import '../models/habit_category.dart';
 import '../services/habit_service.dart';
 import '../services/local_storage_service.dart';
+import '../services/notification_service.dart';
 
 class HabitViewModel extends ChangeNotifier {
   final HabitService _firebaseService = HabitService();
   final LocalStorageService _localStorage = LocalStorageService();
+  final NotificationService _notificationService = NotificationService();
 
   List<Habit> habits = [];
   bool _isLoggedIn = false;
@@ -63,6 +65,7 @@ class HabitViewModel extends ChangeNotifier {
           habit.streak,
           habit.lastCompleted,
           habit.category,
+          reminderTime: habit.reminderTime,
         );
       }
 
@@ -76,9 +79,17 @@ class HabitViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addHabit(String name, HabitCategory category) async {
+  Future<void> addHabit(
+    String name,
+    HabitCategory category, {
+    TimeOfDay? reminderTime,
+  }) async {
     if (_isLoggedIn) {
-      await _firebaseService.createHabit(name, category);
+      await _firebaseService.createHabit(
+        name,
+        category,
+        reminderTime: reminderTime,
+      );
     } else {
       final habit = Habit(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -86,9 +97,33 @@ class HabitViewModel extends ChangeNotifier {
         streak: 0,
         lastCompleted: null,
         category: category,
+        reminderTime: reminderTime,
       );
       await _localStorage.addHabit(habit);
       await _loadLocalHabits();
+    }
+
+    // Schedule notification if reminder time is set
+    if (reminderTime != null) {
+      // Get the habit ID (for Firebase, we need to wait a bit or get it from the stream)
+      // For local, we already have the ID
+      if (!_isLoggedIn) {
+        final habitId = DateTime.now().millisecondsSinceEpoch.toString();
+        await _notificationService.scheduleHabitReminder(
+          habitId: habitId,
+          habitName: name,
+          time: reminderTime,
+        );
+      } else {
+        // For Firebase, schedule after a short delay to ensure habit is created
+        await Future.delayed(const Duration(milliseconds: 500));
+        final habit = habits.firstWhere((h) => h.name == name);
+        await _notificationService.scheduleHabitReminder(
+          habitId: habit.id,
+          habitName: name,
+          time: reminderTime,
+        );
+      }
     }
   }
 
@@ -117,6 +152,7 @@ class HabitViewModel extends ChangeNotifier {
         streak: newStreak,
         lastCompleted: now,
         category: habit.category,
+        reminderTime: habit.reminderTime,
       );
 
       await _localStorage.updateHabit(updatedHabit);
@@ -125,6 +161,9 @@ class HabitViewModel extends ChangeNotifier {
   }
 
   Future<void> deleteHabit(String id) async {
+    // Cancel the notification for this habit
+    await _notificationService.cancelHabitReminder(id);
+
     if (_isLoggedIn) {
       await _firebaseService.deleteHabit(id);
     } else {

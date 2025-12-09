@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import '../models/habit.dart';
 import '../models/habit_category.dart';
 
@@ -21,12 +22,19 @@ class HabitService {
     });
   }
 
-  Future<void> createHabit(String name, HabitCategory category) async {
+  Future<void> createHabit(
+    String name,
+    HabitCategory category, {
+    TimeOfDay? reminderTime,
+  }) async {
     await _habitRef.add({
       'name': name,
       'streak': 0,
       'lastCompleted': null,
       'category': category.name,
+      'reminderTime': reminderTime != null
+          ? '${reminderTime.hour}:${reminderTime.minute}'
+          : null,
     });
   }
 
@@ -34,13 +42,17 @@ class HabitService {
     String name,
     int streak,
     DateTime? lastCompleted,
-    HabitCategory category,
-  ) async {
+    HabitCategory category, {
+    TimeOfDay? reminderTime,
+  }) async {
     await _habitRef.add({
       'name': name,
       'streak': streak,
       'lastCompleted': lastCompleted?.toIso8601String(),
       'category': category.name,
+      'reminderTime': reminderTime != null
+          ? '${reminderTime.hour}:${reminderTime.minute}'
+          : null,
     });
   }
 
