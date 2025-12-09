@@ -42,7 +42,7 @@ class _StatisticsViewState extends State<StatisticsView>
           'Statistics',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: isDark 
+        backgroundColor: isDark
             ? Theme.of(context).appBarTheme.backgroundColor
             : Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
@@ -59,10 +59,7 @@ class _StatisticsViewState extends State<StatisticsView>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildWeeklyView(habits),
-          _buildMonthlyView(habits),
-        ],
+        children: [_buildWeeklyView(habits), _buildMonthlyView(habits)],
       ),
     );
   }
@@ -166,28 +163,30 @@ class _StatisticsViewState extends State<StatisticsView>
             ],
           ),
           const SizedBox(height: 16),
-          ...insights.map((insight) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      '• ',
-                      style: TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                    Expanded(
-                      child: Text(
-                        insight,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 15,
-                          height: 1.4,
-                        ),
+          ...insights.map(
+            (insight) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '• ',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  Expanded(
+                    child: Text(
+                      insight,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        height: 1.4,
                       ),
                     ),
-                  ],
-                ),
-              )),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -303,7 +302,12 @@ class _StatisticsViewState extends State<StatisticsView>
     );
   }
 
-  Widget _buildStatItem(String value, String label, IconData icon, Color color) {
+  Widget _buildStatItem(
+    String value,
+    String label,
+    IconData icon,
+    Color color,
+  ) {
     return Column(
       children: [
         Icon(icon, color: color, size: 28),
@@ -319,10 +323,7 @@ class _StatisticsViewState extends State<StatisticsView>
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-          ),
+          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
           textAlign: TextAlign.center,
         ),
       ],
@@ -392,12 +393,11 @@ class _StatisticsViewState extends State<StatisticsView>
                           colors: isBestDay
                               ? [
                                   Theme.of(context).primaryColor,
-                                  Theme.of(context).primaryColor.withOpacity(0.6),
+                                  Theme.of(
+                                    context,
+                                  ).primaryColor.withOpacity(0.6),
                                 ]
-                              : [
-                                  Colors.grey[400]!,
-                                  Colors.grey[300]!,
-                                ],
+                              : [Colors.grey[400]!, Colors.grey[300]!],
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -410,7 +410,9 @@ class _StatisticsViewState extends State<StatisticsView>
                         color: isBestDay
                             ? Theme.of(context).primaryColor
                             : Colors.grey[600],
-                        fontWeight: isBestDay ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: isBestDay
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                     ),
                   ],
@@ -486,12 +488,11 @@ class _StatisticsViewState extends State<StatisticsView>
                           colors: isBestWeek
                               ? [
                                   Theme.of(context).primaryColor,
-                                  Theme.of(context).primaryColor.withOpacity(0.6),
+                                  Theme.of(
+                                    context,
+                                  ).primaryColor.withOpacity(0.6),
                                 ]
-                              : [
-                                  Colors.grey[400]!,
-                                  Colors.grey[300]!,
-                                ],
+                              : [Colors.grey[400]!, Colors.grey[300]!],
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -504,7 +505,9 @@ class _StatisticsViewState extends State<StatisticsView>
                         color: isBestWeek
                             ? Theme.of(context).primaryColor
                             : Colors.grey[600],
-                        fontWeight: isBestWeek ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: isBestWeek
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                     ),
                   ],

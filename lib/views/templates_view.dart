@@ -26,7 +26,7 @@ class _TemplatesViewState extends State<TemplatesView> {
           'Habit Templates',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: isDark 
+        backgroundColor: isDark
             ? Theme.of(context).appBarTheme.backgroundColor
             : Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
@@ -36,10 +36,7 @@ class _TemplatesViewState extends State<TemplatesView> {
         children: [
           Text(
             'Choose a habit pack to get started quickly',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[700],
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.grey[700]),
           ),
           const SizedBox(height: 20),
           ..._packs.map((pack) => _buildPackCard(pack)),
@@ -136,13 +133,18 @@ class _TemplatesViewState extends State<TemplatesView> {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(template.icon, style: const TextStyle(fontSize: 14)),
+                          Text(
+                            template.icon,
+                            style: const TextStyle(fontSize: 14),
+                          ),
                           const SizedBox(width: 6),
                           Text(
                             template.name,
@@ -328,13 +330,17 @@ class _PackDetailsSheetState extends State<_PackDetailsSheet> {
                         } else {
                           _selectedTemplates.remove(template.id);
                         }
-                        _selectAll = _selectedTemplates.length ==
+                        _selectAll =
+                            _selectedTemplates.length ==
                             widget.pack.templates.length;
                       });
                     },
                     title: Row(
                       children: [
-                        Text(template.icon, style: const TextStyle(fontSize: 20)),
+                        Text(
+                          template.icon,
+                          style: const TextStyle(fontSize: 20),
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -351,10 +357,7 @@ class _PackDetailsSheetState extends State<_PackDetailsSheet> {
                       padding: const EdgeInsets.only(left: 28, top: 4),
                       child: Text(
                         template.description,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                       ),
                     ),
                     activeColor: Theme.of(context).primaryColor,
@@ -382,10 +385,7 @@ class _PackDetailsSheetState extends State<_PackDetailsSheet> {
                 children: [
                   Text(
                     '${_selectedTemplates.length} habit${_selectedTemplates.length == 1 ? '' : 's'} selected',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 12),
                   SizedBox(

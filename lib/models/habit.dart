@@ -8,6 +8,9 @@ class Habit {
   final DateTime? lastCompleted;
   final HabitCategory category;
   final TimeOfDay? reminderTime;
+  final int availableFreezes; // Number of freezes available this week
+  final DateTime? lastFreezeReset; // When freezes were last reset
+  final List<DateTime> freezeUsedDates; // Dates when freezes were used
 
   Habit({
     required this.id,
@@ -16,6 +19,9 @@ class Habit {
     required this.lastCompleted,
     this.category = HabitCategory.other,
     this.reminderTime,
+    this.availableFreezes = 1, // One freeze per week by default
+    this.lastFreezeReset,
+    this.freezeUsedDates = const [],
   });
 
   Map<String, dynamic> toMap() {
@@ -27,6 +33,11 @@ class Habit {
       'reminderTime': reminderTime != null
           ? '${reminderTime!.hour}:${reminderTime!.minute}'
           : null,
+      'availableFreezes': availableFreezes,
+      'lastFreezeReset': lastFreezeReset?.toIso8601String(),
+      'freezeUsedDates': freezeUsedDates
+          .map((d) => d.toIso8601String())
+          .toList(),
     };
   }
 
@@ -41,6 +52,13 @@ class Habit {
       );
     }
 
+    List<DateTime> freezeUsedDates = [];
+    if (map['freezeUsedDates'] != null) {
+      freezeUsedDates = (map['freezeUsedDates'] as List)
+          .map((d) => DateTime.parse(d as String))
+          .toList();
+    }
+
     return Habit(
       id: id,
       name: map['name'],
@@ -53,6 +71,11 @@ class Habit {
         orElse: () => HabitCategory.other,
       ),
       reminderTime: reminderTime,
+      availableFreezes: map['availableFreezes'] ?? 1,
+      lastFreezeReset: map['lastFreezeReset'] != null
+          ? DateTime.parse(map['lastFreezeReset'])
+          : null,
+      freezeUsedDates: freezeUsedDates,
     );
   }
 
@@ -67,6 +90,11 @@ class Habit {
       'reminderTime': reminderTime != null
           ? '${reminderTime!.hour}:${reminderTime!.minute}'
           : null,
+      'availableFreezes': availableFreezes,
+      'lastFreezeReset': lastFreezeReset?.toIso8601String(),
+      'freezeUsedDates': freezeUsedDates
+          .map((d) => d.toIso8601String())
+          .toList(),
     };
   }
 
@@ -78,6 +106,13 @@ class Habit {
         hour: int.parse(parts[0]),
         minute: int.parse(parts[1]),
       );
+    }
+
+    List<DateTime> freezeUsedDates = [];
+    if (json['freezeUsedDates'] != null) {
+      freezeUsedDates = (json['freezeUsedDates'] as List)
+          .map((d) => DateTime.parse(d as String))
+          .toList();
     }
 
     return Habit(
@@ -92,6 +127,11 @@ class Habit {
         orElse: () => HabitCategory.other,
       ),
       reminderTime: reminderTime,
+      availableFreezes: json['availableFreezes'] ?? 1,
+      lastFreezeReset: json['lastFreezeReset'] != null
+          ? DateTime.parse(json['lastFreezeReset'])
+          : null,
+      freezeUsedDates: freezeUsedDates,
     );
   }
 }

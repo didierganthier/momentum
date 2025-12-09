@@ -16,7 +16,7 @@ class ThemeViewModel extends ChangeNotifier {
   Future<void> _loadThemeMode() async {
     final prefs = await SharedPreferences.getInstance();
     final themeModeString = prefs.getString(_themeModeKey);
-    
+
     if (themeModeString != null) {
       _themeMode = ThemeMode.values.firstWhere(
         (mode) => mode.toString() == themeModeString,
@@ -30,7 +30,7 @@ class ThemeViewModel extends ChangeNotifier {
   Future<void> setThemeMode(ThemeMode mode) async {
     _themeMode = mode;
     notifyListeners();
-    
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_themeModeKey, mode.toString());
   }

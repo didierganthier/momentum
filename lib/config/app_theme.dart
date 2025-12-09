@@ -13,7 +13,7 @@ class AppTheme {
       brightness: Brightness.light,
       primaryColor: primaryColor,
       scaffoldBackgroundColor: const Color(0xFFF5F5F5),
-      
+
       colorScheme: ColorScheme.light(
         primary: primaryColor,
         secondary: const Color(0xFFFF6B6B),
@@ -39,9 +39,7 @@ class AppTheme {
 
       cardTheme: CardThemeData(
         elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         color: Colors.white,
       ),
 
@@ -78,22 +76,20 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: primaryColor, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
       ),
 
       chipTheme: ChipThemeData(
         backgroundColor: Colors.grey[200]!,
         selectedColor: primaryColor.withOpacity(0.2),
         labelStyle: const TextStyle(color: Color(0xFF1D1B20)),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
 
-      dividerTheme: DividerThemeData(
-        color: Colors.grey[300],
-        thickness: 1,
-      ),
+      dividerTheme: DividerThemeData(color: Colors.grey[300], thickness: 1),
     );
   }
 
@@ -104,7 +100,7 @@ class AppTheme {
       brightness: Brightness.dark,
       primaryColor: primaryColorDark,
       scaffoldBackgroundColor: const Color(0xFF121212),
-      
+
       colorScheme: ColorScheme.dark(
         primary: primaryColorDark,
         secondary: const Color(0xFFFF8A80),
@@ -130,9 +126,7 @@ class AppTheme {
 
       cardTheme: CardThemeData(
         elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         color: const Color(0xFF1E1E1E),
       ),
 
@@ -169,16 +163,17 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: primaryColorDark, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
       ),
 
       chipTheme: ChipThemeData(
         backgroundColor: const Color(0xFF2C2C2C),
         selectedColor: primaryColorDark.withOpacity(0.3),
         labelStyle: const TextStyle(color: Color(0xFFE1E1E1)),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
 
       dividerTheme: const DividerThemeData(

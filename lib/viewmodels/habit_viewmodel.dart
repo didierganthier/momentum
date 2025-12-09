@@ -5,6 +5,7 @@ import '../models/habit_completion.dart';
 import '../services/habit_service.dart';
 import '../services/local_storage_service.dart';
 import '../services/notification_service.dart';
+import '../services/streak_recovery_service.dart';
 
 class HabitViewModel extends ChangeNotifier {
   final HabitService _firebaseService = HabitService();
@@ -155,6 +156,9 @@ class HabitViewModel extends ChangeNotifier {
         lastCompleted: now,
         category: habit.category,
         reminderTime: habit.reminderTime,
+        availableFreezes: habit.availableFreezes,
+        lastFreezeReset: habit.lastFreezeReset,
+        freezeUsedDates: habit.freezeUsedDates,
       );
 
       await _localStorage.updateHabit(updatedHabit);
@@ -182,5 +186,32 @@ class HabitViewModel extends ChangeNotifier {
       await _localStorage.deleteHabit(id);
       await _loadLocalHabits();
     }
+  }
+
+  // Streak recovery methods
+  Future<void> useFreeze(Habit habit) async {
+    if (!StreakRecoveryService.canUseFreeze(habit)) {
+      throw Exception('No freezes available');
+    }
+
+    if (_isLoggedIn) {
+      await _firebaseService.useFreeze(habit);
+    } else {
+      final updatedHabit = StreakRecoveryService.useFreeze(habit);
+      await _localStorage.updateHabit(updatedHabit);
+      await _loadLocalHabits();
+    }
+  }
+
+  Map<String, dynamic> getFreezeInsights(Habit habit) {
+    return StreakRecoveryService.getFreezeInsights(habit);
+  }
+
+  bool canUseFreeze(Habit habit) {
+    return StreakRecoveryService.canUseFreeze(habit);
+  }
+
+  bool needsFreeze(Habit habit) {
+    return StreakRecoveryService.needsFreeze(habit);
   }
 }
