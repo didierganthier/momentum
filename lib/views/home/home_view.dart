@@ -5,6 +5,7 @@ import '../../viewmodels/auth_viewmodel.dart';
 import '../../widgets/habit_card.dart';
 import '../../widgets/stats_card.dart';
 import '../auth/login_view.dart';
+import '../../models/habit_category.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -256,6 +257,34 @@ class _HomeViewState extends State<HomeView>
                     ),
                   ),
                 ),
+                // Category filter
+                SliverToBoxAdapter(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    height: 50,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        FilterChip(
+                          label: const Text('All'),
+                          selected: habitsVm.selectedCategory == null,
+                          onSelected: (_) => habitsVm.setCategory(null),
+                        ),
+                        const SizedBox(width: 8),
+                        ...HabitCategory.values.map((category) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: FilterChip(
+                              label: Text(category.displayName),
+                              selected: habitsVm.selectedCategory == category,
+                              onSelected: (_) => habitsVm.setCategory(category),
+                            ),
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
+                ),
                 // Habits list
                 SliverToBoxAdapter(
                   child: Padding(
@@ -272,6 +301,7 @@ class _HomeViewState extends State<HomeView>
                   padding: const EdgeInsets.all(16),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate((context, i) {
+                      final filteredList = habitsVm.filteredHabits;
                       return TweenAnimationBuilder<double>(
                         tween: Tween(begin: 0.0, end: 1.0),
                         duration: Duration(milliseconds: 300 + (i * 100)),
@@ -282,9 +312,9 @@ class _HomeViewState extends State<HomeView>
                             child: Opacity(opacity: value, child: child),
                           );
                         },
-                        child: HabitCard(habit: habits[i]),
+                        child: HabitCard(habit: filteredList[i]),
                       );
-                    }, childCount: habits.length),
+                    }, childCount: habitsVm.filteredHabits.length),
                   ),
                 ),
               ],
@@ -308,72 +338,110 @@ class _HomeViewState extends State<HomeView>
   ) async {
     final controller = TextEditingController();
     final formKey = GlobalKey<FormState>();
+    HabitCategory selectedCategory = HabitCategory.other;
 
     await showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            Icon(Icons.add_task_rounded, color: Theme.of(context).primaryColor),
-            const SizedBox(width: 12),
-            const Text("New Habit"),
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
+            children: [
+              Icon(
+                Icons.add_task_rounded,
+                color: Theme.of(context).primaryColor,
+              ),
+              const SizedBox(width: 12),
+              const Text("New Habit"),
+            ],
+          ),
+          content: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  controller: controller,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    hintText: "e.g., Read for 30 minutes",
+                    prefixIcon: const Icon(Icons.edit_outlined),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[50],
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter a habit name';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Category',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: HabitCategory.values.map((category) {
+                    final isSelected = selectedCategory == category;
+                    return ChoiceChip(
+                      label: Text(category.displayName),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        setState(() {
+                          selectedCategory = category;
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton.icon(
+              onPressed: () {
+                if (formKey.currentState!.validate()) {
+                  habitsVm.addHabit(controller.text.trim(), selectedCategory);
+                  Navigator.pop(dialogContext);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Row(
+                        children: [
+                          Icon(Icons.check_circle, color: Colors.white),
+                          SizedBox(width: 12),
+                          Text('Habit added successfully!'),
+                        ],
+                      ),
+                      backgroundColor: Colors.green,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  );
+                }
+              },
+              icon: const Icon(Icons.save_rounded),
+              label: const Text("Save"),
+            ),
           ],
         ),
-        content: Form(
-          key: formKey,
-          child: TextFormField(
-            controller: controller,
-            autofocus: true,
-            decoration: InputDecoration(
-              hintText: "e.g., Read for 30 minutes",
-              prefixIcon: const Icon(Icons.edit_outlined),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              filled: true,
-              fillColor: Colors.grey[50],
-            ),
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Please enter a habit name';
-              }
-              return null;
-            },
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text("Cancel"),
-          ),
-          ElevatedButton.icon(
-            onPressed: () {
-              if (formKey.currentState!.validate()) {
-                habitsVm.addHabit(controller.text.trim());
-                Navigator.pop(dialogContext);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Row(
-                      children: [
-                        Icon(Icons.check_circle, color: Colors.white),
-                        SizedBox(width: 12),
-                        Text('Habit added successfully!'),
-                      ],
-                    ),
-                    backgroundColor: Colors.green,
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                );
-              }
-            },
-            icon: const Icon(Icons.save_rounded),
-            label: const Text("Save"),
-          ),
-        ],
       ),
     );
   }

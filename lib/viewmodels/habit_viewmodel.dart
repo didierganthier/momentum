@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import '../models/habit.dart';
+import '../models/habit_category.dart';
 import '../services/habit_service.dart';
 import '../services/local_storage_service.dart';
 
@@ -9,8 +10,15 @@ class HabitViewModel extends ChangeNotifier {
 
   List<Habit> habits = [];
   bool _isLoggedIn = false;
+  HabitCategory? _selectedCategory;
 
   bool get isLoggedIn => _isLoggedIn;
+  HabitCategory? get selectedCategory => _selectedCategory;
+
+  List<Habit> get filteredHabits {
+    if (_selectedCategory == null) return habits;
+    return habits.where((h) => h.category == _selectedCategory).toList();
+  }
 
   HabitViewModel() {
     _loadHabits();
@@ -54,6 +62,7 @@ class HabitViewModel extends ChangeNotifier {
           habit.name,
           habit.streak,
           habit.lastCompleted,
+          habit.category,
         );
       }
 
@@ -62,15 +71,21 @@ class HabitViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> addHabit(String name) async {
+  void setCategory(HabitCategory? category) {
+    _selectedCategory = category;
+    notifyListeners();
+  }
+
+  Future<void> addHabit(String name, HabitCategory category) async {
     if (_isLoggedIn) {
-      await _firebaseService.createHabit(name);
+      await _firebaseService.createHabit(name, category);
     } else {
       final habit = Habit(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: name,
         streak: 0,
         lastCompleted: null,
+        category: category,
       );
       await _localStorage.addHabit(habit);
       await _loadLocalHabits();
@@ -101,6 +116,7 @@ class HabitViewModel extends ChangeNotifier {
         name: habit.name,
         streak: newStreak,
         lastCompleted: now,
+        category: habit.category,
       );
 
       await _localStorage.updateHabit(updatedHabit);

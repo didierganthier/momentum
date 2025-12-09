@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/habit.dart';
+import '../models/habit_category.dart';
 
 class HabitService {
   String get userId => FirebaseAuth.instance.currentUser!.uid;
@@ -20,19 +21,26 @@ class HabitService {
     });
   }
 
-  Future<void> createHabit(String name) async {
-    await _habitRef.add({'name': name, 'streak': 0, 'lastCompleted': null});
+  Future<void> createHabit(String name, HabitCategory category) async {
+    await _habitRef.add({
+      'name': name,
+      'streak': 0,
+      'lastCompleted': null,
+      'category': category.name,
+    });
   }
 
   Future<void> createHabitWithData(
     String name,
     int streak,
     DateTime? lastCompleted,
+    HabitCategory category,
   ) async {
     await _habitRef.add({
       'name': name,
       'streak': streak,
       'lastCompleted': lastCompleted?.toIso8601String(),
+      'category': category.name,
     });
   }
 

@@ -1,14 +1,18 @@
+import 'habit_category.dart';
+
 class Habit {
   final String id;
   final String name;
   final int streak;
   final DateTime? lastCompleted;
+  final HabitCategory category;
 
   Habit({
     required this.id,
     required this.name,
     required this.streak,
     required this.lastCompleted,
+    this.category = HabitCategory.other,
   });
 
   Map<String, dynamic> toMap() {
@@ -16,6 +20,7 @@ class Habit {
       'name': name,
       'streak': streak,
       'lastCompleted': lastCompleted?.toIso8601String(),
+      'category': category.name,
     };
   }
 
@@ -28,6 +33,10 @@ class Habit {
       lastCompleted: map['lastCompleted'] != null
           ? DateTime.parse(map['lastCompleted'])
           : null,
+      category: HabitCategory.values.firstWhere(
+        (c) => c.name == map['category'],
+        orElse: () => HabitCategory.other,
+      ),
     );
   }
 
@@ -38,6 +47,7 @@ class Habit {
       'name': name,
       'streak': streak,
       'lastCompleted': lastCompleted?.toIso8601String(),
+      'category': category.name,
     };
   }
 
@@ -49,6 +59,10 @@ class Habit {
       lastCompleted: json['lastCompleted'] != null
           ? DateTime.parse(json['lastCompleted'])
           : null,
+      category: HabitCategory.values.firstWhere(
+        (c) => c.name == (json['category'] ?? 'other'),
+        orElse: () => HabitCategory.other,
+      ),
     );
   }
 }
