@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "389470119850",
+    "firebase_url": "https://wigiv-e47c2.firebaseio.com",
+    "project_id": "wigiv-e47c2",
+    "storage_bucket": "wigiv-e47c2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:389470119850:android:7d6d7a6e1682dc30842dd3",
+        "android_client_info": {
+          "package_name": "com.example.momentum"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDz8PUxXafGtMrd9_ZxHgMfOASxdQxEwUE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
