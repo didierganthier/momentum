@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../viewmodels/habit_viewmodel.dart';
 import '../../viewmodels/auth_viewmodel.dart';
+import '../../viewmodels/theme_viewmodel.dart';
 import '../../widgets/habit_card.dart';
 import '../../widgets/stats_card.dart';
 import '../auth/login_view.dart';
 import '../statistics_view.dart';
 import '../templates_view.dart';
+import '../settings/theme_settings_view.dart';
 import '../../models/habit_category.dart';
 
 class HomeView extends StatefulWidget {
@@ -61,6 +63,25 @@ class _HomeViewState extends State<HomeView>
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         actions: [
+          // Theme toggle button
+          Consumer<ThemeViewModel>(
+            builder: (context, themeViewModel, child) {
+              return IconButton(
+                icon: Icon(
+                  themeViewModel.getThemeModeIcon(themeViewModel.themeMode),
+                ),
+                tooltip: 'Theme',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ThemeSettingsView(),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
           // Templates button
           IconButton(
             icon: const Icon(Icons.grid_view),

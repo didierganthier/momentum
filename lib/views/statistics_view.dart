@@ -32,16 +32,19 @@ class _StatisticsViewState extends State<StatisticsView>
   Widget build(BuildContext context) {
     final habitViewModel = Provider.of<HabitViewModel>(context);
     final habits = habitViewModel.habits;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         elevation: 0,
         title: const Text(
           'Statistics',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: isDark 
+            ? Theme.of(context).appBarTheme.backgroundColor
+            : Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
         bottom: TabBar(
           controller: _tabController,

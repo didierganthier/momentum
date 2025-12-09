@@ -16,15 +16,19 @@ class _TemplatesViewState extends State<TemplatesView> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         elevation: 0,
         title: const Text(
           'Habit Templates',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: isDark 
+            ? Theme.of(context).appBarTheme.backgroundColor
+            : Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
       ),
       body: ListView(
