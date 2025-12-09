@@ -24,7 +24,9 @@ class ThemeSettingsView extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withOpacity(0.7),
                 ),
               ),
               const SizedBox(height: 16),
@@ -187,11 +189,7 @@ class ThemeSettingsView extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      const Icon(
-                        Icons.palette,
-                        color: Colors.white,
-                        size: 32,
-                      ),
+                      const Icon(Icons.palette, color: Colors.white, size: 32),
                       const SizedBox(height: 8),
                       Text(
                         'Primary',
@@ -211,9 +209,7 @@ class ThemeSettingsView extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Theme.of(context).dividerColor,
-                    ),
+                    border: Border.all(color: Theme.of(context).dividerColor),
                   ),
                   child: Column(
                     children: [

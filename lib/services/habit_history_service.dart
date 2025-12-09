@@ -9,11 +9,9 @@ class HabitHistoryService {
   final HabitService? _firebaseService;
   final bool _isLoggedIn;
 
-  HabitHistoryService({
-    HabitService? firebaseService,
-    bool isLoggedIn = false,
-  })  : _firebaseService = firebaseService,
-        _isLoggedIn = isLoggedIn;
+  HabitHistoryService({HabitService? firebaseService, bool isLoggedIn = false})
+    : _firebaseService = firebaseService,
+      _isLoggedIn = isLoggedIn;
 
   /// Get all completions for a specific habit
   Future<List<HabitCompletion>> getCompletions(String habitId) async {
@@ -46,7 +44,10 @@ class HabitHistoryService {
 
   /// Get completions for a specific month
   Future<List<HabitCompletion>> getCompletionsForMonth(
-      String habitId, int year, int month) async {
+    String habitId,
+    int year,
+    int month,
+  ) async {
     final completions = await getCompletions(habitId);
     return completions.where((completion) {
       return completion.completedAt.year == year &&
@@ -127,14 +128,14 @@ class HabitHistoryService {
 
     for (var completion in completions) {
       if (previousDate != null) {
-        final daysDiff =
-            completion.completedAt.difference(previousDate).inDays;
+        final daysDiff = completion.completedAt.difference(previousDate).inDays;
 
         if (daysDiff == 1) {
           currentStreak++;
         } else {
-          longestStreak =
-              currentStreak > longestStreak ? currentStreak : longestStreak;
+          longestStreak = currentStreak > longestStreak
+              ? currentStreak
+              : longestStreak;
           currentStreak = 1;
         }
       }

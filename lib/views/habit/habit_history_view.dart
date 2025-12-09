@@ -17,7 +17,8 @@ class _HabitHistoryViewState extends State<HabitHistoryView> {
   DateTime _selectedMonth = DateTime.now();
   final HabitHistoryService _historyService = HabitHistoryService();
   Set<String> _completedDates = {}; // Cache completed dates as "yyyy-MM-dd"
-  Map<String, HabitCompletion> _completions = {}; // Cache completions with notes
+  Map<String, HabitCompletion> _completions =
+      {}; // Cache completions with notes
   bool _isLoading = true;
 
   @override
@@ -34,13 +35,14 @@ class _HabitHistoryViewState extends State<HabitHistoryView> {
       _selectedMonth.year,
       _selectedMonth.month,
     );
-    
+
     setState(() {
       _completedDates = {};
       _completions = {};
       for (var completion in completions) {
         final date = completion.completedAt;
-        final dateKey = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+        final dateKey =
+            '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
         _completedDates.add(dateKey);
         _completions[dateKey] = completion;
       }
@@ -113,13 +115,21 @@ class _HabitHistoryViewState extends State<HabitHistoryView> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildStatCard('🔥', '${widget.habit.streak}', 'Current Streak'),
+                  _buildStatCard(
+                    '🔥',
+                    '${widget.habit.streak}',
+                    'Current Streak',
+                  ),
                   _buildStatCard(
                     '📅',
                     data['totalCompletions'].toString(),
                     'Total Days',
                   ),
-                  _buildStatCard('💯', '${data['completionRate']}%', 'Success Rate'),
+                  _buildStatCard(
+                    '💯',
+                    '${data['completionRate']}%',
+                    'Success Rate',
+                  ),
                 ],
               ),
             ],
@@ -130,8 +140,13 @@ class _HabitHistoryViewState extends State<HabitHistoryView> {
   }
 
   Future<Map<String, dynamic>> _loadStatsData() async {
-    final totalCompletions = await _historyService.getTotalCompletions(widget.habit.id);
-    final completionRate = await _historyService.getCompletionRate(widget.habit.id, daysToCheck: 30);
+    final totalCompletions = await _historyService.getTotalCompletions(
+      widget.habit.id,
+    );
+    final completionRate = await _historyService.getCompletionRate(
+      widget.habit.id,
+      daysToCheck: 30,
+    );
     return {
       'totalCompletions': totalCompletions,
       'completionRate': completionRate,
@@ -249,14 +264,14 @@ class _HabitHistoryViewState extends State<HabitHistoryView> {
                             ),
                           ),
                         ),
-                )
-                    .toList(),
-              ),
-              const SizedBox(height: 12),
-              // Calendar grid
-              ..._buildCalendarGrid(),
-            ],
-          ),
+                      )
+                      .toList(),
+                ),
+                const SizedBox(height: 12),
+                // Calendar grid
+                ..._buildCalendarGrid(),
+              ],
+            ),
     );
   }
 
@@ -320,8 +335,11 @@ class _HabitHistoryViewState extends State<HabitHistoryView> {
     final isCompleted = _isDateCompleted(date);
     final isToday = _isToday(date);
     final isFuture = date.isAfter(DateTime.now());
-    final dateKey = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-    final hasNote = _completions[dateKey]?.note != null && _completions[dateKey]!.note!.isNotEmpty;
+    final dateKey =
+        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    final hasNote =
+        _completions[dateKey]?.note != null &&
+        _completions[dateKey]!.note!.isNotEmpty;
 
     return GestureDetector(
       onTap: isCompleted ? () => _showNoteDialog(date) : null,
@@ -382,17 +400,16 @@ class _HabitHistoryViewState extends State<HabitHistoryView> {
   }
 
   void _showNoteDialog(DateTime date) {
-    final dateKey = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    final dateKey =
+        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
     final completion = _completions[dateKey];
-    
+
     if (completion == null) return;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
             Icon(
@@ -414,11 +431,7 @@ class _HabitHistoryViewState extends State<HabitHistoryView> {
             if (completion.note != null && completion.note!.isNotEmpty) ...[
               Row(
                 children: [
-                  Icon(
-                    Icons.note,
-                    size: 20,
-                    color: Colors.grey[600],
-                  ),
+                  Icon(Icons.note, size: 20, color: Colors.grey[600]),
                   const SizedBox(width: 8),
                   Text(
                     'Note',
@@ -698,7 +711,13 @@ class _HabitHistoryViewState extends State<HabitHistoryView> {
                 ],
               ),
               const SizedBox(height: 16),
-              Expanded(child: _buildStreakBars(currentStreak, longestStreak, averageStreak)),
+              Expanded(
+                child: _buildStreakBars(
+                  currentStreak,
+                  longestStreak,
+                  averageStreak,
+                ),
+              ),
             ],
           ),
         );
@@ -707,9 +726,15 @@ class _HabitHistoryViewState extends State<HabitHistoryView> {
   }
 
   Future<Map<String, dynamic>> _loadStreakData() async {
-    final currentStreak = await _historyService.getCurrentStreak(widget.habit.id);
-    final longestStreak = await _historyService.getLongestStreak(widget.habit.id);
-    final averageStreak = await _historyService.getAverageStreak(widget.habit.id);
+    final currentStreak = await _historyService.getCurrentStreak(
+      widget.habit.id,
+    );
+    final longestStreak = await _historyService.getLongestStreak(
+      widget.habit.id,
+    );
+    final averageStreak = await _historyService.getAverageStreak(
+      widget.habit.id,
+    );
     return {
       'currentStreak': currentStreak,
       'longestStreak': longestStreak,
@@ -731,7 +756,11 @@ class _HabitHistoryViewState extends State<HabitHistoryView> {
     );
   }
 
-  Widget _buildStreakBars(int currentStreak, int longestStreak, double averageStreak) {
+  Widget _buildStreakBars(
+    int currentStreak,
+    int longestStreak,
+    double averageStreak,
+  ) {
     // Use actual streak data
     final streaks = [
       (currentStreak * 0.4).round(),
@@ -742,7 +771,9 @@ class _HabitHistoryViewState extends State<HabitHistoryView> {
       (currentStreak * 0.9).round(),
       currentStreak,
     ];
-    final maxStreak = longestStreak > 0 ? longestStreak : currentStreak.clamp(1, 100);
+    final maxStreak = longestStreak > 0
+        ? longestStreak
+        : currentStreak.clamp(1, 100);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -789,7 +820,8 @@ class _HabitHistoryViewState extends State<HabitHistoryView> {
 
   // Helper methods
   bool _isDateCompleted(DateTime date) {
-    final dateKey = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    final dateKey =
+        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
     return _completedDates.contains(dateKey);
   }
 

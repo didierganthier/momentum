@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../models/habit.dart';
 import '../models/habit_category.dart';
 import '../models/habit_completion.dart';
+import 'streak_recovery_service.dart';
 
 class HabitService {
   String get userId => FirebaseAuth.instance.currentUser!.uid;
@@ -41,6 +42,9 @@ class HabitService {
       'reminderTime': reminderTime != null
           ? '${reminderTime.hour}:${reminderTime.minute}'
           : null,
+      'availableFreezes': 1,
+      'lastFreezeReset': null,
+      'freezeUsedDates': [],
     });
   }
 
@@ -59,6 +63,9 @@ class HabitService {
       'reminderTime': reminderTime != null
           ? '${reminderTime.hour}:${reminderTime.minute}'
           : null,
+      'availableFreezes': 1,
+      'lastFreezeReset': null,
+      'freezeUsedDates': [],
     });
   }
 
@@ -111,11 +118,15 @@ class HabitService {
         .orderBy('completedAt', descending: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs
-          .map((doc) =>
-              HabitCompletion.fromMap(doc.id, doc.data() as Map<String, dynamic>))
-          .toList();
-    });
+          return snapshot.docs
+              .map(
+                (doc) => HabitCompletion.fromMap(
+                  doc.id,
+                  doc.data() as Map<String, dynamic>,
+                ),
+              )
+              .toList();
+        });
   }
 
   Future<List<HabitCompletion>> getCompletionsList(String habitId) async {
@@ -125,8 +136,36 @@ class HabitService {
         .get();
 
     return snapshot.docs
-        .map((doc) =>
-            HabitCompletion.fromMap(doc.id, doc.data() as Map<String, dynamic>))
+        .map(
+          (doc) => HabitCompletion.fromMap(
+            doc.id,
+            doc.data() as Map<String, dynamic>,
+          ),
+        )
         .toList();
+  }
+
+  // Freeze streak methods
+  Future<void> useFreeze(Habit habit) async {
+    final updatedHabit = StreakRecoveryService.useFreeze(habit);
+
+    await _habitRef.doc(habit.id).update({
+      'availableFreezes': updatedHabit.availableFreezes,
+      'lastFreezeReset': updatedHabit.lastFreezeReset?.toIso8601String(),
+      'freezeUsedDates': updatedHabit.freezeUsedDates
+          .map((d) => d.toIso8601String())
+          .toList(),
+      'lastCompleted': updatedHabit.lastCompleted?.toIso8601String(),
+    });
+  }
+
+  Future<void> resetFreezesIfNeeded(Habit habit) async {
+    if (StreakRecoveryService.shouldResetFreezes(habit.lastFreezeReset)) {
+      await _habitRef.doc(habit.id).update({
+        'availableFreezes': 1,
+        'lastFreezeReset': DateTime.now().toIso8601String(),
+        'freezeUsedDates': [],
+      });
+    }
   }
 }

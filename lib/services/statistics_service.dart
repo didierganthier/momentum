@@ -9,7 +9,11 @@ class StatisticsService {
   Future<WeeklyStatistics> getWeeklyStatistics(List<Habit> habits) async {
     final now = DateTime.now();
     final weekStart = now.subtract(Duration(days: now.weekday % 7));
-    final weekStartDate = DateTime(weekStart.year, weekStart.month, weekStart.day);
+    final weekStartDate = DateTime(
+      weekStart.year,
+      weekStart.month,
+      weekStart.day,
+    );
 
     int totalPossibleCompletions = habits.length * 7;
     int totalCompletions = 0;
@@ -105,7 +109,8 @@ class StatisticsService {
       // Group by week
       for (var completion in completions) {
         final weekNumber = ((completion.completedAt.day - 1) / 7).floor();
-        completionsByWeek[weekNumber] = (completionsByWeek[weekNumber] ?? 0) + 1;
+        completionsByWeek[weekNumber] =
+            (completionsByWeek[weekNumber] ?? 0) + 1;
       }
     }
 
@@ -138,7 +143,7 @@ class StatisticsService {
   /// Get insights and motivational messages
   Future<List<String>> getInsights(List<Habit> habits) async {
     List<String> insights = [];
-    
+
     if (habits.isEmpty) {
       insights.add("Add your first habit to start tracking! 🎯");
       return insights;
@@ -149,27 +154,49 @@ class StatisticsService {
 
     // Completion rate insight
     if (weekly.completionRate >= 85) {
-      insights.add("🌟 Amazing! You completed ${weekly.completionRate}% of your habits this week!");
+      insights.add(
+        "🌟 Amazing! You completed ${weekly.completionRate}% of your habits this week!",
+      );
     } else if (weekly.completionRate >= 70) {
-      insights.add("👏 Great job! ${weekly.completionRate}% completion rate this week.");
+      insights.add(
+        "👏 Great job! ${weekly.completionRate}% completion rate this week.",
+      );
     } else if (weekly.completionRate >= 50) {
-      insights.add("💪 Keep going! ${weekly.completionRate}% completion this week.");
+      insights.add(
+        "💪 Keep going! ${weekly.completionRate}% completion this week.",
+      );
     } else {
-      insights.add("📈 Let's improve! ${weekly.completionRate}% completion this week.");
+      insights.add(
+        "📈 Let's improve! ${weekly.completionRate}% completion this week.",
+      );
     }
 
     // Best day insight
-    final dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    final dayNames = [
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+    ];
     if (weekly.bestDayRate > 0) {
-      insights.add("✨ Best day: ${dayNames[weekly.bestDay]} (${weekly.bestDayRate}% completion)");
+      insights.add(
+        "✨ Best day: ${dayNames[weekly.bestDay]} (${weekly.bestDayRate}% completion)",
+      );
     }
 
     // Longest streak insight
     if (monthly.longestStreak > 0) {
       if (monthly.longestStreak >= 30) {
-        insights.add("🔥 Incredible! Longest streak: ${monthly.longestStreak} days!");
+        insights.add(
+          "🔥 Incredible! Longest streak: ${monthly.longestStreak} days!",
+        );
       } else if (monthly.longestStreak >= 7) {
-        insights.add("🔥 Longest streak: ${monthly.longestStreak} days - Keep it up!");
+        insights.add(
+          "🔥 Longest streak: ${monthly.longestStreak} days - Keep it up!",
+        );
       } else {
         insights.add("🔥 Current best: ${monthly.longestStreak} days streak");
       }
@@ -177,15 +204,21 @@ class StatisticsService {
 
     // Monthly progress
     if (monthly.completionRate >= 80) {
-      insights.add("📊 Excellent month! ${monthly.completionRate}% overall completion");
+      insights.add(
+        "📊 Excellent month! ${monthly.completionRate}% overall completion",
+      );
     }
 
     // Consistency insight
-    final daysWithActivity = weekly.completionsByDay.values.where((c) => c > 0).length;
+    final daysWithActivity = weekly.completionsByDay.values
+        .where((c) => c > 0)
+        .length;
     if (daysWithActivity == 7) {
       insights.add("🎯 Perfect! Active every day this week");
     } else if (daysWithActivity >= 5) {
-      insights.add("📅 Great consistency! Active $daysWithActivity days this week");
+      insights.add(
+        "📅 Great consistency! Active $daysWithActivity days this week",
+      );
     }
 
     return insights;

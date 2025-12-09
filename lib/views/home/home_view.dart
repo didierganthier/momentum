@@ -89,9 +89,7 @@ class _HomeViewState extends State<HomeView>
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const TemplatesView(),
-                ),
+                MaterialPageRoute(builder: (context) => const TemplatesView()),
               );
             },
           ),
@@ -102,9 +100,7 @@ class _HomeViewState extends State<HomeView>
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const StatisticsView(),
-                ),
+                MaterialPageRoute(builder: (context) => const StatisticsView()),
               );
             },
           ),
@@ -167,8 +163,8 @@ class _HomeViewState extends State<HomeView>
                     'No habits yet',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       color: Colors.grey[600],
-                          fontWeight: FontWeight.bold,
-                        ),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -310,7 +306,8 @@ class _HomeViewState extends State<HomeView>
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const StatisticsView(),
+                                    builder: (context) =>
+                                        const StatisticsView(),
                                   ),
                                 );
                               },

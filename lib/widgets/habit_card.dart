@@ -4,6 +4,7 @@ import '../models/habit.dart';
 import '../viewmodels/habit_viewmodel.dart';
 import '../views/habit/habit_history_view.dart';
 import 'habit_completion_dialog.dart';
+import 'freeze_indicator.dart';
 
 class HabitCard extends StatefulWidget {
   final Habit habit;
@@ -83,7 +84,7 @@ class _HabitCardState extends State<HabitCard>
             _controller.reverse();
           },
           onLongPress: () {
-            _showDeleteDialog(context, vm);
+            _showOptionsBottomSheet(context, vm);
           },
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -166,6 +167,8 @@ class _HabitCardState extends State<HabitCard>
                               ),
                             ),
                           ),
+                          const SizedBox(width: 8),
+                          FreezeIndicator(habit: widget.habit),
                         ],
                       ),
                     ],
@@ -209,18 +212,19 @@ class _HabitCardState extends State<HabitCard>
                       // Show dialog to optionally add a note
                       final note = await showDialog<String>(
                         context: context,
-                        builder: (context) => HabitCompletionDialog(habit: widget.habit),
+                        builder: (context) =>
+                            HabitCompletionDialog(habit: widget.habit),
                       );
-                      
+
                       // If null, user cancelled
                       if (note == null) return;
-                      
+
                       // Complete the habit with the note (empty string if skipped)
                       await vm.completeHabit(
                         widget.habit,
                         note: note.isEmpty ? null : note,
                       );
-                      
+
                       if (context.mounted) {
                         _showCompletionAnimation(context);
                       }
@@ -280,6 +284,115 @@ class _HabitCardState extends State<HabitCard>
         duration: const Duration(seconds: 2),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
+    );
+  }
+
+  void _showFreezeDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => FreezeDialog(habit: widget.habit),
+    );
+  }
+
+  void _showOptionsBottomSheet(BuildContext context, HabitViewModel vm) {
+    final canFreeze = vm.canUseFreeze(widget.habit);
+    final needsFreeze = vm.needsFreeze(widget.habit);
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Freeze option
+              if (canFreeze || needsFreeze)
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: needsFreeze
+                          ? Colors.orange.withOpacity(0.1)
+                          : Theme.of(context).primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.ac_unit,
+                      color: needsFreeze
+                          ? Colors.orange
+                          : Theme.of(context).primaryColor,
+                    ),
+                  ),
+                  title: Text(
+                    needsFreeze ? 'Use Streak Freeze' : 'Streak Freeze',
+                  ),
+                  subtitle: Text(
+                    needsFreeze
+                        ? 'Protect your streak - ${widget.habit.availableFreezes} available'
+                        : '${widget.habit.availableFreezes} freeze(s) available',
+                  ),
+                  trailing: needsFreeze
+                      ? Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.orange,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Text(
+                            'At Risk',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        )
+                      : null,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showFreezeDialog(this.context);
+                  },
+                ),
+
+              // Delete option
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.delete_outline, color: Colors.red),
+                ),
+                title: const Text('Delete Habit'),
+                subtitle: const Text('This action cannot be undone'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showDeleteDialog(this.context, vm);
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
     );
   }
 

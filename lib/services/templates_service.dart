@@ -241,9 +241,9 @@ class TemplatesService {
     final allTemplates = getAllPacks()
         .expand((pack) => pack.templates)
         .toList();
-    
+
     if (query.isEmpty) return allTemplates;
-    
+
     final lowerQuery = query.toLowerCase();
     return allTemplates.where((template) {
       return template.name.toLowerCase().contains(lowerQuery) ||
