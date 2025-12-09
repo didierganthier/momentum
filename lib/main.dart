@@ -7,6 +7,7 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'viewmodels/auth_viewmodel.dart';
 import 'viewmodels/habit_viewmodel.dart';
 import 'viewmodels/theme_viewmodel.dart';
+import 'viewmodels/social_viewmodel.dart';
 import 'views/auth/register_view.dart';
 import 'views/home/home_view.dart';
 import 'views/splash_screen.dart';
@@ -102,11 +103,21 @@ class _HabitAppInitializerState extends State<HabitAppInitializer> {
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeViewModel()),
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
+        ChangeNotifierProvider(create: (_) => SocialViewModel()),
         ChangeNotifierProxyProvider<AuthViewModel, HabitViewModel>(
           create: (_) => HabitViewModel(),
           update: (_, auth, habitVm) {
             habitVm?.setLoggedIn(auth.isLoggedIn);
             return habitVm!;
+          },
+        ),
+        ChangeNotifierProxyProvider<AuthViewModel, SocialViewModel>(
+          create: (_) => SocialViewModel(),
+          update: (_, auth, socialVm) {
+            if (auth.isLoggedIn) {
+              socialVm?.initialize();
+            }
+            return socialVm!;
           },
         ),
       ],

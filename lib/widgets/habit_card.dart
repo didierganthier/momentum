@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/habit.dart';
 import '../viewmodels/habit_viewmodel.dart';
+import '../viewmodels/social_viewmodel.dart';
 import '../views/habit/habit_history_view.dart';
 import 'habit_completion_dialog.dart';
 import 'freeze_indicator.dart';
@@ -227,6 +228,7 @@ class _HabitCardState extends State<HabitCard>
 
                       if (context.mounted) {
                         _showCompletionAnimation(context);
+                        _checkMilestoneShare(context);
                       }
                     },
                     child: Container(
@@ -285,6 +287,81 @@ class _HabitCardState extends State<HabitCard>
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
+  }
+
+  void _checkMilestoneShare(BuildContext context) {
+    final newStreak = widget.habit.streak + 1;
+    final milestones = [7, 30, 100, 365];
+
+    if (milestones.contains(newStreak)) {
+      Future.delayed(const Duration(seconds: 2), () {
+        if (!context.mounted) return;
+
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            title: Row(
+              children: [
+                Icon(Icons.emoji_events, color: Theme.of(context).primaryColor),
+                const SizedBox(width: 12),
+                const Text('Milestone Reached!'),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '🎉 $newStreak Day Streak! 🎉',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Would you like to share this achievement with your friends?',
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Maybe Later'),
+              ),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  final socialVm = Provider.of<SocialViewModel>(
+                    context,
+                    listen: false,
+                  );
+                  await socialVm.shareMilestone(
+                    habitName: widget.habit.name,
+                    streak: newStreak,
+                  );
+
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('🎉 Milestone shared with friends!'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.share),
+                label: const Text('Share'),
+              ),
+            ],
+          ),
+        );
+      });
+    }
   }
 
   void _showFreezeDialog(BuildContext context) {

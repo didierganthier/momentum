@@ -9,6 +9,7 @@ import '../auth/login_view.dart';
 import '../statistics_view.dart';
 import '../templates_view.dart';
 import '../settings/theme_settings_view.dart';
+import '../social/social_hub_view.dart';
 import '../../models/habit_category.dart';
 
 class HomeView extends StatefulWidget {
@@ -101,6 +102,17 @@ class _HomeViewState extends State<HomeView>
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const StatisticsView()),
+              );
+            },
+          ),
+          // Social button
+          IconButton(
+            icon: const Icon(Icons.people),
+            tooltip: 'Social',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SocialHubView()),
               );
             },
           ),
